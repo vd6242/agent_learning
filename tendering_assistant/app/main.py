@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import approvals, bid_drafts, clarifications, documents, opportunities
+from app.api import approvals, bid_drafts, clarifications, discovery, documents, opportunities
 
 app = FastAPI(
     title="AI Tendering Assistant",
@@ -12,6 +12,7 @@ app = FastAPI(
 )
 
 app.include_router(opportunities.router)
+app.include_router(discovery.router)
 app.include_router(documents.router)
 app.include_router(approvals.router)
 app.include_router(bid_drafts.router)

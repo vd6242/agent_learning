@@ -48,3 +48,39 @@ def test_upload_and_analyze_requires_llm_config():
     # configuration error rather than an opaque failure.
     assert analyze.status_code == 503
     assert "ANTHROPIC_API_KEY" in analyze.json()["detail"]
+
+
+def test_discovery_sources_all_unconfigured_by_default():
+    resp = client.get("/discovery/sources")
+    assert resp.status_code == 200
+    sources = resp.json()
+    assert {s["source"] for s in sources} == {
+        "gem",
+        "cppp_eprocure",
+        "state_procurement",
+        "psu_portal",
+        "railways",
+        "defence",
+    }
+    assert all(s["configured"] is False for s in sources)
+
+
+def test_discovery_scan_with_no_configured_sources_returns_empty():
+    resp = client.post("/discovery/scan")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["new_tenders"] == []
+    assert body["sources_scanned"] == []
+    assert len(body["sources_skipped_unconfigured"]) == 6
+
+
+def test_discovery_dismiss_missing_tender_404():
+    resp = client.post("/discovery/tenders/does-not-exist/dismiss")
+    assert resp.status_code == 404
+
+
+def test_discovery_convert_missing_tender_404():
+    resp = client.post(
+        "/discovery/tenders/does-not-exist/convert", json={"reviewer": "alice"}
+    )
+    assert resp.status_code == 404

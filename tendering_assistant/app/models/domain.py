@@ -97,3 +97,43 @@ class ApprovalDecision(BaseModel):
     decision: ApprovalStatus
     reviewer: str
     notes: str | None = None
+
+
+class TenderSourceName(StrEnum):
+    GEM = "gem"
+    CPPP_EPROCURE = "cppp_eprocure"
+    STATE_PROCUREMENT = "state_procurement"
+    PSU_PORTAL = "psu_portal"
+    RAILWAYS = "railways"
+    DEFENCE = "defence"
+    OTHER = "other"
+
+
+class DiscoveryStatus(StrEnum):
+    NEW = "new"
+    REVIEWED = "reviewed"
+    CONVERTED = "converted"
+    DISMISSED = "dismissed"
+
+
+class DiscoveredTender(BaseModel):
+    """A tender found by a source connector, awaiting human triage.
+
+    Discovery never creates an Opportunity directly -- a human reviews each
+    DiscoveredTender and either converts it (creating an Opportunity) or
+    dismisses it, keeping the same human-approval principle used for AI
+    outputs elsewhere in the workflow.
+    """
+
+    id: str = Field(default_factory=lambda: new_id("disc"))
+    source: TenderSourceName
+    external_id: str
+    title: str
+    organisation: str | None = None
+    project_type_guess: ProjectType | None = None
+    closing_date: datetime | None = None
+    url: str | None = None
+    raw_summary: str | None = None
+    status: DiscoveryStatus = DiscoveryStatus.NEW
+    converted_opportunity_id: str | None = None
+    discovered_at: datetime = Field(default_factory=datetime.utcnow)
