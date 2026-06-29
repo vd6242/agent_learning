@@ -1,3 +1,8 @@
 daily_poster/output/
 daily_poster/state.json
 daily_poster/__pycache__/
+
+tendering_assistant/__pycache__/
+tendering_assistant/**/__pycache__/
+tendering_assistant/.env
+tendering_assistant/*.egg-info/
